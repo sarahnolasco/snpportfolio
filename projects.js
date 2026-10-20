@@ -66,6 +66,7 @@ processSections: [
   },
   {
     title: "Final Designs",
+    layout: "stacked",
     description: "Finalizing the covers into a cohesive visual system.",
     images: [
       {

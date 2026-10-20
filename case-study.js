@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const project = projects[projectIndex];
 
+  // Create text elements.
   function addTextElement(tag, className, text) {
     const element = document.createElement(tag);
 
@@ -31,10 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return element;
   }
 
+  // Create section headings.
   function createSectionHeading(text) {
     return addTextElement("h3", "", text);
   }
 
+  // Create images.
   function createImage(src, title, isCover = false) {
     const image = document.createElement("img");
 
@@ -53,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return image;
   }
 
-  // Create a two-column gallery of process images with optional captions.
+  // Create process image galleries with optional captions.
   function createProcessImages(processImages) {
     if (!Array.isArray(processImages) || processImages.length === 0) {
       return null;
@@ -63,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gallery.className = "process-images";
 
     processImages.forEach((item, index) => {
-      // Supports filenames or objects containing src, caption, and alt.
+      // Supports a filename string or an image object.
       const imageData =
         typeof item === "string"
           ? { src: item, caption: "" }
@@ -130,18 +133,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.title = "Project Not Found | Portfolio";
   }
 
+  // Render the selected project's case study.
   function renderProject(project) {
     container.replaceChildren();
 
     document.title = `${project.title} | Portfolio`;
 
-    // Back link
+    // Back link.
     const backLink = document.createElement("a");
     backLink.className = "case-back";
     backLink.href = "index.html#work";
     backLink.textContent = "← Back to all work";
 
-    // Project introduction
+    // Project introduction.
     const hero = document.createElement("section");
     hero.className = "case-hero";
 
@@ -165,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     hero.append(eyebrow, title, intro);
 
-    // Main project cover
+    // Main project cover.
     const cover = document.createElement("div");
     cover.className = "case-cover";
 
@@ -177,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       )
     );
 
-    // Project details
+    // Project details.
     const infoGrid = document.createElement("section");
     infoGrid.className = "case-info-grid";
     infoGrid.setAttribute("aria-label", "Project details");
@@ -205,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
       infoGrid.appendChild(item);
     });
 
-    // Case study content
+    // Case study content.
     const content = document.createElement("section");
     content.className = "case-content";
 
@@ -217,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const contentBody = document.createElement("div");
 
-    // The brief
+    // The brief.
     if (project.brief) {
       contentBody.appendChild(
         createSectionHeading("The brief")
@@ -228,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // Project goals
+    // Project goals.
     if (project.goals) {
       contentBody.appendChild(
         createSectionHeading("Project goals")
@@ -251,8 +255,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // The process introduction
-    if (project.process || project.processSections || project.processImages) {
+    // The process heading and introduction.
+    const hasProcessSections =
+      Array.isArray(project.processSections) &&
+      project.processSections.length > 0;
+
+    const hasLegacyProcessImages =
+      Array.isArray(project.processImages) &&
+      project.processImages.length > 0;
+
+    if (
+      project.process ||
+      hasProcessSections ||
+      hasLegacyProcessImages
+    ) {
       contentBody.appendChild(
         createSectionHeading("The process")
       );
@@ -264,42 +280,52 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // NEW: Separate process sections, each with its own image grid.
-    if (Array.isArray(project.processSections)) {
+    // Individual process sections.
+    if (hasProcessSections) {
       project.processSections.forEach((section) => {
         const sectionWrapper = document.createElement("div");
         sectionWrapper.className = "process-section";
 
+        // Apply stacked layout only to sections that request it.
+        if (section.layout === "stacked") {
+          sectionWrapper.classList.add("process-section--stacked");
+        }
+
+        // RESTORED: Display the section title.
         if (section.title) {
           sectionWrapper.appendChild(
             createSectionHeading(section.title)
           );
         }
 
+        // Display the section description.
         if (section.description) {
           sectionWrapper.appendChild(
             addTextElement("p", "", section.description)
           );
         }
 
-        const gallery = createProcessImages(section.images);
+        // Display the section's image grid.
+        const processGallery = createProcessImages(section.images);
 
-        if (gallery) {
-          sectionWrapper.appendChild(gallery);
+        if (processGallery) {
+          sectionWrapper.appendChild(processGallery);
         }
 
         contentBody.appendChild(sectionWrapper);
       });
     } else {
-      // Backward compatibility with the original processImages array.
-      const gallery = createProcessImages(project.processImages);
+      // Support the original processImages format.
+      const processGallery = createProcessImages(
+        project.processImages
+      );
 
-      if (gallery) {
-        contentBody.appendChild(gallery);
+      if (processGallery) {
+        contentBody.appendChild(processGallery);
       }
     }
 
-    // The outcome
+    // The outcome.
     if (project.outcome) {
       contentBody.appendChild(
         createSectionHeading("The outcome")
@@ -312,7 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     content.append(contentHeading, contentBody);
 
-    // Final project images gallery
+    // Final project image gallery.
     const gallery = document.createElement("section");
     gallery.className = "case-gallery";
     gallery.setAttribute("aria-label", "Project images");
@@ -332,7 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       });
 
-    // Previous and next project navigation
+    // Previous and next project navigation.
     const navigation = document.createElement("nav");
     navigation.className = "case-next";
 
@@ -386,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(navigation);
   }
 
+  // Show the project or an error message.
   if (!project) {
     renderError();
     return;

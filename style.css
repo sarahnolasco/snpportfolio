@@ -944,3 +944,21 @@ textarea {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Full-width stacked images for selected process sections */
+.process-section--stacked .process-images {
+  grid-template-columns: 1fr;
+  gap: 28px;
+  width: 100%;
+}
+
+.process-section--stacked .process-image-item {
+  width: 100%;
+}
+
+.process-section--stacked .process-image-item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
